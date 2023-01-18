@@ -1,0 +1,26 @@
+fill_color = "#FFFFFF"
+fill_opacity = 0
+
+font_opacity = 1.0
+font_color = "#FFFFFF"
+font_size = 48
+
+border_thickness = 1.0
+border_color = "#FFFFFF"
+
+cell_size = 1.0
+
+
+background_opacity = 0.0
+background_color = "#FFFFFF"
+
+node_font_opacity = 1.0
+node_font_color = "#FFFFFF"
+node_font_size = 48
+
+node_fill_color = "#572d91"
+node_fill_opacity = 1.0
+node_border_color = "#FFFFFF"
+
+caption_size = 36
+caption_color = "#FFFFFF"
