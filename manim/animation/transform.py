@@ -28,7 +28,8 @@ __all__ = [
 
 import inspect
 import types
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
 
@@ -122,6 +123,10 @@ class Transform(Animation):
 
                 self.play(*anims, run_time=2)
                 self.wait()
+
+    See also
+    --------
+    :class:`~.ReplacementTransform`, :meth:`~.Mobject.interpolate`, :meth:`~.Mobject.align_data`
     """
 
     def __init__(
@@ -211,8 +216,7 @@ class Transform(Animation):
     def clean_up_from_scene(self, scene: Scene) -> None:
         super().clean_up_from_scene(scene)
         if self.replace_mobject_with_target_in_scene:
-            scene.remove(self.mobject)
-            scene.add(self.target_mobject)
+            scene.replace(self.mobject, self.target_mobject)
 
     def get_all_mobjects(self) -> Sequence[Mobject]:
         return [
@@ -298,9 +302,7 @@ class ReplacementTransform(Transform):
 
 
 class TransformFromCopy(Transform):
-    """
-    Performs a reversed Transform
-    """
+    """Performs a reversed Transform"""
 
     def __init__(self, mobject: Mobject, target_mobject: Mobject, **kwargs) -> None:
         super().__init__(target_mobject, mobject, **kwargs)
@@ -431,7 +433,7 @@ class MoveToTarget(Transform):
     def check_validity_of_input(self, mobject: Mobject) -> None:
         if not hasattr(mobject, "target"):
             raise ValueError(
-                "MoveToTarget called on mobject" "without attribute 'target'",
+                "MoveToTarget called on mobjectwithout attribute 'target'",
             )
 
 

@@ -10,6 +10,8 @@ from manim.mobject.opengl.opengl_vectorized_mobject import OpenGLVMobject
 
 from ...constants import RendererType
 
+__all__ = ["ConvertToOpenGL"]
+
 
 class ConvertToOpenGL(ABCMeta):
     """Metaclass for swapping (V)Mobject with its OpenGL counterpart at runtime
@@ -19,7 +21,7 @@ class ConvertToOpenGL(ABCMeta):
 
     _converted_classes = []
 
-    def __new__(mcls, name, bases, namespace):  # noqa: B902
+    def __new__(mcls, name, bases, namespace):
         if config.renderer == RendererType.OPENGL:
             # Must check class names to prevent
             # cyclic importing.
@@ -38,6 +40,6 @@ class ConvertToOpenGL(ABCMeta):
 
         return super().__new__(mcls, name, bases, namespace)
 
-    def __init__(cls, name, bases, namespace):  # noqa: B902
+    def __init__(cls, name, bases, namespace):
         super().__init__(name, bases, namespace)
         cls._converted_classes.append(cls)

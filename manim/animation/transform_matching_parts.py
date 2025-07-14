@@ -76,7 +76,6 @@ class TransformMatchingAbstractBase(AnimationGroup):
         key_map: dict | None = None,
         **kwargs,
     ):
-
         if isinstance(mobject, OpenGLVMobject):
             group_type = OpenGLVGroup
         elif isinstance(mobject, OpenGLMobject):
@@ -97,7 +96,6 @@ class TransformMatchingAbstractBase(AnimationGroup):
         # target_map
         transform_source = group_type()
         transform_target = group_type()
-        kwargs["final_alpha_value"] = 0
         for key in set(source_map).intersection(target_map):
             transform_source.add(source_map[key])
             transform_target.add(target_map[key])
@@ -226,7 +224,7 @@ class TransformMatchingShapes(TransformMatchingAbstractBase):
     def get_mobject_key(mobject: Mobject) -> int:
         mobject.save_state()
         mobject.center()
-        mobject.set_height(1)
+        mobject.set(height=1)
         result = hash(np.round(mobject.points, 3).tobytes())
         mobject.restore()
         return result

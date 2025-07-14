@@ -15,8 +15,8 @@ Examples
             m2 = DecimalMatrix(
                 [[3.456, 2.122], [33.2244, 12.33]],
                 element_to_mobject_config={"num_decimal_places": 2},
-                left_bracket="\\{",
-                right_bracket="\\}")
+                left_bracket=r"\{",
+                right_bracket=r"\}")
             m3 = MobjectMatrix(
                 [[Circle().scale(0.3), Square().scale(0.3)],
                 [MathTex("\\pi").scale(2), Star().scale(0.3)]],
@@ -40,7 +40,7 @@ __all__ = [
 
 
 import itertools as it
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 
 import numpy as np
 
@@ -72,7 +72,40 @@ def matrix_to_mobject(matrix):
 
 
 class Matrix(VMobject, metaclass=ConvertToOpenGL):
-    """A mobject that displays a matrix on the screen.
+    r"""A mobject that displays a matrix on the screen.
+
+    Parameters
+    ----------
+    matrix
+        A numpy 2d array or list of lists.
+    v_buff
+        Vertical distance between elements, by default 0.8.
+    h_buff
+        Horizontal distance between elements, by default 1.3.
+    bracket_h_buff
+        Distance of the brackets from the matrix, by default ``MED_SMALL_BUFF``.
+    bracket_v_buff
+        Height of the brackets, by default ``MED_SMALL_BUFF``.
+    add_background_rectangles_to_entries
+        ``True`` if should add backgraound rectangles to entries, by default ``False``.
+    include_background_rectangle
+        ``True`` if should include background rectangle, by default ``False``.
+    element_to_mobject
+        The mobject class used to construct the elements, by default :class:`~.MathTex`.
+    element_to_mobject_config
+        Additional arguments to be passed to the constructor in ``element_to_mobject``,
+        by default ``{}``.
+    element_alignment_corner
+        The corner to which elements are aligned, by default ``DR``.
+    left_bracket
+        The left bracket type, by default ``"["``.
+    right_bracket
+        The right bracket type, by default ``"]"``.
+    stretch_brackets
+        ``True`` if should stretch the brackets to fit the height of matrix contents, by default ``True``.
+    bracket_config
+        Additional arguments to be passed to :class:`~.MathTex` when constructing
+        the brackets.
 
     Examples
     --------
@@ -85,22 +118,22 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
 
         class MatrixExamples(Scene):
             def construct(self):
-                m0 = Matrix([[2, "\\pi"], [-1, 1]])
+                m0 = Matrix([[2, r"\pi"], [-1, 1]])
                 m1 = Matrix([[2, 0, 4], [-1, 1, 5]],
                     v_buff=1.3,
                     h_buff=0.8,
                     bracket_h_buff=SMALL_BUFF,
                     bracket_v_buff=SMALL_BUFF,
-                    left_bracket="\\{",
-                    right_bracket="\\}")
+                    left_bracket=r"\{",
+                    right_bracket=r"\}")
                 m1.add(SurroundingRectangle(m1.get_columns()[1]))
                 m2 = Matrix([[2, 1], [-1, 3]],
                     element_alignment_corner=UL,
                     left_bracket="(",
                     right_bracket=")")
                 m3 = Matrix([[2, 1], [-1, 3]],
-                    left_bracket="\\\\langle",
-                    right_bracket="\\\\rangle")
+                    left_bracket=r"\langle",
+                    right_bracket=r"\rangle")
                 m4 = Matrix([[2, 1], [-1, 3]],
                 ).set_column_colors(RED, GREEN)
                 m5 = Matrix([[2, 1], [-1, 3]],
@@ -146,43 +179,6 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
         bracket_config: dict = {},
         **kwargs,
     ):
-        """
-
-        Parameters
-        ----------
-        matrix
-            A numpy 2d array or list of lists.
-        v_buff
-            Vertical distance between elements, by default 0.8.
-        h_buff
-            Horizontal distance between elements, by default 1.3.
-        bracket_h_buff
-            Distance of the brackets from the matrix, by default ``MED_SMALL_BUFF``.
-        bracket_v_buff
-            Height of the brackets, by default ``MED_SMALL_BUFF``.
-        add_background_rectangles_to_entries
-            ``True`` if should add backgraound rectangles to entries, by default ``False``.
-        include_background_rectangle
-            ``True`` if should include background rectangle, by default ``False``.
-        element_to_mobject
-            The mobject class used to construct the elements, by default :class:`~.MathTex`.
-        element_to_mobject_config
-            Additional arguments to be passed to the constructor in ``element_to_mobject``,
-            by default ``{}``.
-        element_alignment_corner
-            The corner to which elements are aligned, by default ``DR``.
-        left_bracket
-            The left bracket type, by default ``"["``.
-        right_bracket
-            The right bracket type, by default ``"]"``.
-        stretch_brackets
-            ``True`` if should stretch the brackets to fit the height of matrix contents, by default ``True``.
-        bracket_config
-            Additional arguments to be passed to :class:`~.MathTex` when constructing
-            the brackets.
-
-        """
-
         self.v_buff = v_buff
         self.h_buff = h_buff
         self.bracket_h_buff = bracket_h_buff
@@ -245,7 +241,6 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
         :class:`Matrix`
             The current matrix object (self).
         """
-
         # Height per row of LaTeX array with default settings
         BRACKET_HEIGHT = 0.5977
 
@@ -284,7 +279,7 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
         return self
 
     def get_columns(self):
-        """Return columns of the matrix as VGroups.
+        r"""Return columns of the matrix as VGroups.
 
         Returns
         --------
@@ -299,11 +294,10 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
 
             class GetColumnsExample(Scene):
                 def construct(self):
-                    m0 = Matrix([["\\pi", 3], [1, 5]])
+                    m0 = Matrix([[r"\pi", 3], [1, 5]])
                     m0.add(SurroundingRectangle(m0.get_columns()[1]))
                     self.add(m0)
         """
-
         return VGroup(
             *(
                 VGroup(*(row[i] for row in self.mob_matrix))
@@ -312,7 +306,7 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
         )
 
     def set_column_colors(self, *colors: str):
-        """Set individual colors for each columns of the matrix.
+        r"""Set individual colors for each columns of the matrix.
 
         Parameters
         ----------
@@ -342,7 +336,7 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
         return self
 
     def get_rows(self):
-        """Return rows of the matrix as VGroups.
+        r"""Return rows of the matrix as VGroups.
 
         Returns
         --------
@@ -364,7 +358,7 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
         return VGroup(*(VGroup(*row) for row in self.mob_matrix))
 
     def set_row_colors(self, *colors: str):
-        """Set individual colors for each row of the matrix.
+        r"""Set individual colors for each row of the matrix.
 
         Parameters
         ----------
@@ -406,7 +400,7 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
             mob.add_background_rectangle()
         return self
 
-    def get_mob_matrix(self):
+    def get_mob_matrix(self) -> list[list[MathTex]]:
         """Return the underlying mob matrix mobjects.
 
         Returns
@@ -441,13 +435,13 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
         """
         return self.elements
 
-    def get_brackets(self):
-        """Return the bracket mobjects.
+    def get_brackets(self) -> VGroup:
+        r"""Return the bracket mobjects.
 
         Returns
         --------
-        List[:class:`~.VGroup`]
-            Each VGroup contains a bracket
+        :class:`~.VGroup`
+            A VGroup containing the left and right bracket.
 
         Examples
         --------
@@ -468,7 +462,7 @@ class Matrix(VMobject, metaclass=ConvertToOpenGL):
 
 
 class DecimalMatrix(Matrix):
-    """A mobject that displays a matrix with decimal entries on the screen.
+    r"""A mobject that displays a matrix with decimal entries on the screen.
 
     Examples
     --------
@@ -548,7 +542,7 @@ class IntegerMatrix(Matrix):
 
 
 class MobjectMatrix(Matrix):
-    """A mobject that displays a matrix of mobject entries on the screen.
+    r"""A mobject that displays a matrix of mobject entries on the screen.
 
     Examples
     --------

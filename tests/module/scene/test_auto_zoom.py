@@ -4,7 +4,6 @@ from manim import *
 
 
 def test_zoom():
-
     s1 = Square()
     s1.set_x(-10)
     s2 = Square()
@@ -17,6 +16,7 @@ def test_zoom():
 
     assert scene.camera.frame_width == abs(
         s1.get_left()[0] - s2.get_right()[0],
-    ) and scene.camera.frame.get_center()[0] == (
+    )
+    assert scene.camera.frame.get_center()[0] == (
         abs(s1.get_center()[0] + s2.get_center()[0]) / 2
     )

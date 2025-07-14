@@ -50,7 +50,7 @@ For example:
             )
             self.add(text)
 
-.. _Pango library: https://pango.gnome.org
+.. _Pango library: https://pango.org
 
 Working with :class:`~.Text`
 ============================
@@ -378,7 +378,7 @@ we have to add it manually.
             myTemplate = TexTemplate()
             myTemplate.add_to_preamble(r"\usepackage{mathrsfs}")
             tex = Tex(
-                r"$\mathscr{H} \rightarrow \mathbb{H}$}",
+                r"$\mathscr{H} \rightarrow \mathbb{H}$",
                 tex_template=myTemplate,
                 font_size=144,
             )

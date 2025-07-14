@@ -9,14 +9,14 @@ Both ``logger`` and ``console`` use the ``rich`` library to produce rich text
 format.
 
 """
+
 from __future__ import annotations
 
 import configparser
 import copy
 import json
 import logging
-import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from rich import color, errors
 from rich import print as printf
@@ -26,6 +26,9 @@ from rich.theme import Theme
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+__all__ = ["make_logger", "parse_theme", "set_file_logger", "JSONFormatter"]
+
 HIGHLIGHTED_KEYWORDS = [  # these keywords are highlighted specially
     "Played",
     "animations",
@@ -49,9 +52,9 @@ Loading the default color configuration.[/logging.level.error]
 
 
 def make_logger(
-    parser: configparser.ConfigParser,
+    parser: configparser.SectionProxy,
     verbosity: str,
-) -> tuple[logging.Logger, Console]:
+) -> tuple[logging.Logger, Console, Console]:
     """Make the manim logger and console.
 
     Parameters
@@ -83,25 +86,29 @@ def make_logger(
     theme = parse_theme(parser)
     console = Console(theme=theme)
 
-    # With rich 9.5.0+ we could pass stderr=True instead
-    error_console = Console(theme=theme, file=sys.stderr)
+    error_console = Console(theme=theme, stderr=True)
 
     # set the rich handler
-    RichHandler.KEYWORDS = HIGHLIGHTED_KEYWORDS
     rich_handler = RichHandler(
         console=console,
-        show_time=parser.getboolean("log_timestamps"),
+        show_time=parser.getboolean("log_timestamps", fallback=False),
+        keywords=HIGHLIGHTED_KEYWORDS,
     )
 
     # finally, the logger
     logger = logging.getLogger("manim")
     logger.addHandler(rich_handler)
     logger.setLevel(verbosity)
+    logger.propagate = False
+
+    if not (libav_logger := logging.getLogger()).hasHandlers():
+        libav_logger.addHandler(rich_handler)
+        libav_logger.setLevel(verbosity)
 
     return logger, console, error_console
 
 
-def parse_theme(parser: configparser.ConfigParser) -> Theme:
+def parse_theme(parser: configparser.SectionProxy) -> Theme | None:
     """Configure the rich style of logger and console output.
 
     Parameters
@@ -119,7 +126,7 @@ def parse_theme(parser: configparser.ConfigParser) -> Theme:
     :func:`make_logger`.
 
     """
-    theme = {key.replace("_", "."): parser[key] for key in parser}
+    theme: dict[str, Any] = {key.replace("_", "."): parser[key] for key in parser}
 
     theme["log.width"] = None if theme["log.width"] == "-1" else int(theme["log.width"])
     theme["log.height"] = (
@@ -177,12 +184,15 @@ class JSONFormatter(logging.Formatter):
 
     """
 
-    def format(self, record: dict) -> str:
+    def format(self, record: logging.LogRecord) -> str:
         """Format the record in a custom JSON format."""
         record_c = copy.deepcopy(record)
         if record_c.args:
-            for arg in record_c.args:
-                record_c.args[arg] = "<>"
+            if isinstance(record_c.args, dict):
+                for arg in record_c.args:
+                    record_c.args[arg] = "<>"
+            else:
+                record_c.args = ("<>",) * len(record_c.args)
         return json.dumps(
             {
                 "levelname": record_c.levelname,
